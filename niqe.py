@@ -9,6 +9,7 @@ import numpy as np
 import scipy.ndimage
 import numpy as np
 import scipy.special
+from skimage.transform import resize
 import math
 
 gamma_range = np.arange(0.2, 10, 0.001)
@@ -170,7 +171,8 @@ def _get_patches_generic(img, patch_size, is_train, stride):
 
 
     img = img.astype(np.float32)
-    img2 = scipy.misc.imresize(img, 0.5, interp='bicubic', mode='F')
+    output_shape = (img.shape[0]//2, img.shape[1]//2)
+    img2 = resize(img, output_shape, order=3)
 
     mscn1, var, mu = compute_image_mscn_transform(img)
     mscn1 = mscn1.astype(np.float32)
@@ -193,8 +195,8 @@ def niqe(inputImgData):
 
     # TODO: memoize
     params = scipy.io.loadmat(join(module_path, 'data', 'niqe_image_params.mat'))
-    pop_mu = np.ravel(params["pop_mu"])
-    pop_cov = params["pop_cov"]
+    pop_mu = np.ravel(params["mu_prisparam"])
+    pop_cov = params["cov_prisparam"]
 
 
     M, N = inputImgData.shape
